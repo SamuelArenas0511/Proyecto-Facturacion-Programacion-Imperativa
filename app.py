@@ -2,6 +2,7 @@ from tkinter import *      #Importacion de la libreria Tktinter
 from tkinter import ttk     #Importar libreria para hacer ventanas (notebooks) y listas despegables (combobox)
 import tkinter.font as tkFont #Importar libteria de fuentes tkinter
 from tkinter import messagebox
+import numpy
 
 ################CREACION DE LA VENTANA PRINCIPAL###########
 
@@ -10,6 +11,20 @@ ventana.geometry("1344x756") #Medidas
 ventana.title("PROGRAMA DE FACTURACIÓN") #Titulo
 ventana.iconbitmap("icono.ico") #Icono
 
+################CREACION DE LA MATRIZ####################
+
+matriz = numpy.array([[None]*8]*3)
+matriz[0][0] = "Hamburguesa"
+matriz[0][1] = "Salchipapa"
+matriz[0][2] = "Perro"
+matriz[0][3] = "Arepa con todo"
+matriz[0][4] = "Gaseosa"
+matriz[0][5] = "Jugo Hit"
+matriz[0][6] = "Agua"
+matriz[0][7] = "Cerveza"
+for f in range(1,len(matriz)):
+    for c in range(0,len(matriz[0])):
+        matriz[f][c] = 0
 
 ################FUNCIONES DENTRO DEL PROGRAMA###########
 
@@ -105,8 +120,86 @@ def over(e): #Función cuando el cursos deje de estar encima del boton
         bAgregarStock["image"] = bImgAgregarStock
     elif e == 13:
         bSalirStock["image"] = bImgSalirStock
- 
+
+
         
+def buscar():#Funcion que recoge informacion de cbProducto y pone la info de lNombre y lPrecio con la matriz
+    buscar = cbProducto.get()
+    if(buscar == ""):
+        messagebox.showwarning(message="Seleccione algun producto en el combo")
+    else:
+        for fila in range(0,1):
+            for col in range(0,len(matriz[0])):   
+                if(buscar == matriz[fila][col]):
+                    lNombre.config(text = matriz[fila][col])
+                    lPrecio.config(text = matriz[fila + 2][col])
+
+def agregarStock():#Recoge la información de los entry de nueva cantidad y nuevo precio y cambia el valor de la matriz
+    agregar = cbProducto2.get()
+    cantidad = eCantidadN.get()
+    precio = ePrecio.get()
+    if(agregar == ""):
+        messagebox.showwarning(message="Seleccione algun producto en el combo")
+    elif(cantidad == "" and precio == ""):
+        messagebox.showwarning(message="Digite una cantidad o precio para agregar")
+    elif(cantidad == "" and precio != ""):
+        if(precio.isnumeric()):
+            for fila in range(0,1):
+                for col in range(0,len(matriz[0])):   
+                    if(agregar == matriz[fila][col]):
+                        matriz[fila + 2][col] = precio
+        else:
+            messagebox.showwarning(message="Porfavor solo digite numeros enteros en precio y cantidad")
+    elif(cantidad != "" and precio == ""):
+        if(cantidad.isnumeric()):
+            for fila in range(0,1):
+                for col in range(0,len(matriz[0])):   
+                    if(agregar == matriz[fila][col]):
+                        matriz[fila + 1][col] = cantidad
+        else:
+            messagebox.showwarning(message="Porfavor solo digite numeros enteros en precio y cantidad")
+    elif(cantidad != "" and precio != ""):
+        if(cantidad.isnumeric() and precio.isnumeric()):
+            for fila in range(0,1):
+                for col in range(0,len(matriz[0])):   
+                    if(agregar == matriz[fila][col]):
+                        matriz[fila + 1][col] = cantidad
+                        matriz[fila + 2][col] = precio
+        else:
+            messagebox.showwarning(message="Porfavor solo digite numeros enteros en precio y cantidad")
+
+
+
+def buscarStock():#recoge la info del entry del producto, y lo pone en los label de cantidad de producto, y precio del producto
+    buscarStock = cbProducto2.get()
+    if(buscarStock == ""):
+        messagebox.showwarning(message="Seleccione algun producto en el combo")
+    else:
+        for fila in range(0,1):
+            for col in range(0,len(matriz[0])):   
+                if(buscarStock == matriz[fila][col]):
+                    lCantidad.config(text = matriz[fila + 1][col])
+                    lPrecioAc.config(text = matriz[fila + 2][col])
+
+def listaStock():#Muestra una ventana emergente de una lista de los productos y su respectiva cantidad con la matriz
+    lista = ""
+    for fila in range(0,len(matriz)):
+        for col in range(0,len(matriz[0])):
+            if(fila == 0 and col == 0):
+                lista += "\t\t"
+            if(fila == 1 and col == 0):
+                lista += "Cantidad:" + "\t\t"
+            if(fila == 2 and col == 0):
+                lista += "Precio:" + "\t\t"       
+            lista += str(matriz[fila][col]) + "\t\t"
+        lista += "\n"   
+    texto = Toplevel(ventana)
+    texto.geometry("1200x100")
+    texto.title("Lista productos")
+    mostrarMatriz = Text(texto, width = 300, height = 4)
+    mostrarMatriz.pack()
+    mostrarMatriz.delete("1.0", END)
+    mostrarMatriz.insert(INSERT,lista)
         
     
 
@@ -209,7 +302,7 @@ bImgSalirClick=PhotoImage(file = "btnSalirClick.png") #Imagen del boton "Salir" 
 
 ################ELEMENTOS FRAME 1###########
 cbProducto = ttk.Combobox(canvasBg2, values=["Hamburguesa", "Salchipapa", "Perro", "Arepa con todo", "Gaseosa", "Jugo Hit", "Agua", "Cerveza"], width=25, state="readonly", font=fuenteT)
-bBuscar = Button(canvasBg2, image=bImgBuscar, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT, command=lambda: prueba(3)  )
+bBuscar = Button(canvasBg2, image=bImgBuscar, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT, command = buscar)
 lNombre = Label(canvasBg2, text="", font=fuenteN, background="#373F51", foreground="#EDEDED")
 lPrecio = Label(canvasBg2, text="", font=fuenteP, background="#373F51", foreground="#EDEDED")
 eCantidad = Entry(canvasBg2, background="#373F51", foreground= "white", font=fuenteC, width=4, relief=SUNKEN, justify="center", insertbackground="white")
@@ -314,6 +407,14 @@ canvasBg3 = Canvas(ventana3, width = 1344, height = 756)
 canvasBg3.pack(fill = "both", expand = True)
 canvasBg3.create_image( 9, 0, image = imagenBg3, anchor = "nw")
 
+
+
+
+
+
+
+
+
 ################IMAGENES###########
 
 bImgBuscarStock = PhotoImage(file = "btnBuscarStock.png") #Imagen del boton "Buscar"
@@ -328,14 +429,14 @@ bImgSalirStockClick = PhotoImage(file = "btnSalirStockClick.png") #Imagen del bo
 ################ELEMENTOS###########
 
 cbProducto2 = ttk.Combobox(canvasBg3, values=["Hamburguesa", "Salchipapa", "Perro", "Arepa con todo", "Gaseosa", "Jugo Hit", "Agua", "Cerveza"], width=35, state="readonly", font=fuenteCB)
-bBuscarStock = Button(canvasBg3, image=bImgBuscarStock, borderwidth =0, highlightthickness=0, bd=0, bg="#EDEDED",relief=FLAT)
-bStock = Button(canvasBg3, image=bImgStock, borderwidth =0, highlightthickness=0, bd=0, bg="#EDEDED",relief=FLAT)
+bBuscarStock = Button(canvasBg3, image=bImgBuscarStock, borderwidth =0, highlightthickness=0, bd=0, bg="#EDEDED",relief=FLAT, command = buscarStock)
+bStock = Button(canvasBg3, image=bImgStock, borderwidth =0, highlightthickness=0, bd=0, bg="#EDEDED",relief=FLAT, command = listaStock)
 lCantidad = Label(canvasBg3, text="", font=fuenteD, background="#EDEDED", foreground="#373F51") #Texto de la cantidad actual del producto buscado 
 lPrecioAc = Label(canvasBg3, text="", font=fuenteD, background="#EDEDED", foreground="#373F51") #Texto del precio actual del producto buscado
 
 eCantidadN = Entry(canvasBg3, background="white", foreground= "#373F51", font=fuenteC, width=12, relief=SUNKEN, justify="center", insertbackground="#373F51", highlightbackground="#9F9D9D", highlightcolor="#373F51", highlightthickness=1)
 ePrecio = Entry(canvasBg3, background="white", foreground= "#373F51", font=fuenteC, width=13, relief=SUNKEN,  justify="center", insertbackground="#373F51", highlightbackground="#9F9D9D", highlightcolor="#373F51", highlightthickness=1)
-bAgregarStock = Button(canvasBg3, image=bImgAgregarStock, borderwidth =0, highlightthickness=0, bd=0, bg="#EDEDED",relief=FLAT)
+bAgregarStock = Button(canvasBg3, image=bImgAgregarStock, borderwidth =0, highlightthickness=0, bd=0, bg="#EDEDED",relief=FLAT, command = agregarStock)
 bSalirStock = Button(canvasBg3, image=bImgSalirStock, borderwidth =0, highlightthickness=0, bd=0, bg="#EDEDED",relief=FLAT, command=lambda: salir(ventana1))
 
 #####FUNCIONES PARA CUANDO SE TENGA EL CURSO ENCIMA O NO DE LOS BOTONES####
