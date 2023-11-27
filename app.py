@@ -28,24 +28,6 @@ for f in range(1,len(matriz)):
 
 ################FUNCIONES DENTRO DEL PROGRAMA###########
 
-def prueba(e):
-    if e == 1:
-        newventana = Toplevel(ventana)
-        newventana.geometry("290x350") 
-        newventana.title("FACTURA")
-
-        texto = Label(newventana, text="Hola soy factura")
-        boton = Button(newventana, text="Hola soy boton para salir o para imprimir")
-        texto.pack()
-        boton.pack(side="top", pady=50)
-
-        newventana.mainloop()
-     
-    if e == 2:
-       messagebox.showwarning(message="Valor incorrecto")
-    
-    if e == 3:
-       messagebox.showerror(message="Valor incorrecto")
 
 def salir(panel): #Función al presionar sobre los botones
     panel.lift() #Determina el Frame que se va a mostrar en pantalla, en funcion del parametro que da cada boton
@@ -91,8 +73,7 @@ def hover(e): #Función cuando el cursos este sobre los botones
         bSalirStock["image"] = bImgSalirStockClick
         bSalirStock.config(cursor="hand2")
         
-        
-        
+    
 def over(e): #Función cuando el cursos deje de estar encima del boton
     if e == 1:
      bFacturacion["image"] = bImagen1 #Cambia la imagen a su estado original 
@@ -148,14 +129,18 @@ def agregarStock():#Recoge la información de los entry de nueva cantidad y nuev
                 for col in range(0,len(matriz[0])):   
                     if(agregar == matriz[fila][col]):
                         matriz[fila + 2][col] = precio
+            messagebox.showinfo(message="Precio cambiado con exito")
         else:
             messagebox.showwarning(message="Porfavor solo digite numeros enteros en precio y cantidad")
     elif(cantidad != "" and precio == ""):
+        
         if(cantidad.isnumeric()):
             for fila in range(0,1):
                 for col in range(0,len(matriz[0])):   
                     if(agregar == matriz[fila][col]):
-                        matriz[fila + 1][col] = cantidad
+                        cantidad = int(cantidad)
+                        matriz[fila + 1][col] += cantidad
+            messagebox.showinfo(message="Cantiad cambiada con exito")
         else:
             messagebox.showwarning(message="Porfavor solo digite numeros enteros en precio y cantidad")
     elif(cantidad != "" and precio != ""):
@@ -163,11 +148,15 @@ def agregarStock():#Recoge la información de los entry de nueva cantidad y nuev
             for fila in range(0,1):
                 for col in range(0,len(matriz[0])):   
                     if(agregar == matriz[fila][col]):
-                        matriz[fila + 1][col] = cantidad
+                        cantidad = int(cantidad)
+                        matriz[fila + 1][col] =  int(matriz[fila + 1][col]) + cantidad
                         matriz[fila + 2][col] = precio
+            messagebox.showinfo(message="Cantiad y precio cambiado con exito")
         else:
             messagebox.showwarning(message="Porfavor solo digite numeros enteros en precio y cantidad")
-
+    
+    eCantidadN.delete(0, END)
+    ePrecio.delete(0, END)
 
 
 def buscarStock():#recoge la info del entry del producto, y lo pone en los label de cantidad de producto, y precio del producto
@@ -180,6 +169,7 @@ def buscarStock():#recoge la info del entry del producto, y lo pone en los label
                 if(buscarStock == matriz[fila][col]):
                     lCantidad.config(text = matriz[fila + 1][col])
                     lPrecioAc.config(text = matriz[fila + 2][col])
+
 
 def listaStock():#Muestra una ventana emergente de una lista de los productos y su respectiva cantidad con la matriz
     lista = ""
@@ -200,7 +190,55 @@ def listaStock():#Muestra una ventana emergente de una lista de los productos y 
     mostrarMatriz.pack()
     mostrarMatriz.delete("1.0", END)
     mostrarMatriz.insert(INSERT,lista)
+
+
+
+def agregar(): #funcion para agregar elementos a la tabala de previsualizacion de la factura
+   buscar = cbProducto.get()
+   cantidad= eCantidad.get()
+
+   if(buscar == ""):
+        messagebox.showwarning(message="Seleccione algun producto en el combo")
+   else:
+        if ( cantidad.isnumeric() and cantidad != "" and cantidad != 0 ):
+             for fila in range(0,1):
+                 for col in range(0,len(matriz[0])):   
+                    if(buscar == matriz[fila][col]):
+                        cantidad = int(cantidad)
+                        if (cantidad > int(matriz[fila + 1][col])):
+                            messagebox.showerror(message="Cantidad insuficiente, la cantidad de productos que hay es: "+ str(matriz[fila + 1][col]), title="Cantidad insuficiente")
+                        elif( int(matriz[fila + 2][col]) == 0):
+                            messagebox.showwarning(message="El producto no tiene precio")
+                        else:
+                            matriz[fila + 1][col] = int( matriz[fila + 1][col]) - cantidad
+                            producto = matriz[fila][col]
+                            precioUnitario = int(matriz[fila + 2][col])
+                            precioTotal = precioUnitario*cantidad
+                            tvFactura.insert("", END, text=producto, values=(cantidad,precioUnitario,precioTotal))
+       
+        else:
+            messagebox.showwarning(message="Escoga una cantidad correcta")
         
+def eliminarFactura (tvFactura): #Funcion para eliminar los elementos de la previsualizacion de la factura
+                     
+    elementos = tvFactura.get_children()
+    valoresDescripcion = [tvFactura.item(i, 'text') for i in elementos]
+    valoresCantidad= [tvFactura.item(i, 'values')[0] for i in elementos]
+
+    for fila in range(0,1):
+        for col in range(0,len(matriz[0])):   
+            for i in range (0,len(valoresDescripcion)):
+                if (valoresDescripcion[i] == matriz[fila][col]):
+                    matriz[fila+1][col] =  int(matriz[fila+1][col])+ int(valoresCantidad[i])
+
+    for i in elementos:
+        tvFactura.delete(i)
+
+
+
+    
+
+
     
 
 
@@ -262,7 +300,6 @@ bStockI.place(x=100, y =450)
 
 
 
-
 ################ELEMENTOS VENTANA DE FACTURACIÓN###########
 
 ################IMAGEN DE FONDO###########
@@ -306,13 +343,11 @@ bBuscar = Button(canvasBg2, image=bImgBuscar, borderwidth =0, highlightthickness
 lNombre = Label(canvasBg2, text="", font=fuenteN, background="#373F51", foreground="#EDEDED")
 lPrecio = Label(canvasBg2, text="", font=fuenteP, background="#373F51", foreground="#EDEDED")
 eCantidad = Entry(canvasBg2, background="#373F51", foreground= "white", font=fuenteC, width=4, relief=SUNKEN, justify="center", insertbackground="white")
-bAgregar = Button(canvasBg2, image=bImgAgregar, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT)
-
+bAgregar = Button(canvasBg2, image=bImgAgregar, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT, command = agregar)
 
 ################ELEMENTOS FRAME 2###########
 
 eDevuelto = Entry(canvasBg2, background="#373F51", foreground= "white", font=fuenteN, width=20, relief=SUNKEN, justify="center", insertbackground="white")
-eDevuelto.insert(0,"$$$")
 bDevuelto = Button(canvasBg2, image=bImgDevuelto, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT)
 lDevuelto = Label(canvasBg2, text="", font=fuenteN, background="#373F51", foreground="#EDEDED")
 
@@ -322,12 +357,6 @@ lSubtotal = Label(canvasBg2, text="", font=fuenteD, background="#373F51", foregr
 lDescuento = Label(canvasBg2, text="", font=fuenteD, background="#373F51", foreground="#FFD87F")
 lTotal = Label(canvasBg2, text="", font=fuenteD, background="#373F51", foreground="#FFD87F")
 bVenta = Button(canvasBg2, image=bImgVenta, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT)
-
-################ELEMENTOS FRAME 4###########
-
-bFactura = Button(canvasBg2, image=bImgFactura, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT)
-bBorrar = Button(canvasBg2, image=bImgBorrar, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT)
-bSalir = Button(canvasBg2, image=bImgSalir, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT, command=lambda: salir(ventana1) )
 
 ################ELEMENTOS FRAME 5 TABLA DE LA PREVISUALIZACION DE LA FACTURA###########
 
@@ -342,15 +371,17 @@ tvFactura.heading("#0", text="DESCRIPCIÓN", anchor=CENTER) #Definir el titulo d
 tvFactura.heading("colC", text="CANTIDAD", anchor=CENTER)
 tvFactura.heading("colPU", text="PRECIO U", anchor=CENTER)
 tvFactura.heading("colPT", text="PRECIO T.", anchor=CENTER)
-
-tvFactura.insert("", END, text = "Perro", values=("2", "$18.000", "$36.000"))
-tvFactura.insert("", END, text = "Gaseosa", values=("2", "$2.000", "$4.000"))
-tvFactura.insert("", END, text = "Gaseosa", values=("2", "$2.000", "$4.000"))
-
+ 
 style = ttk.Style()
 style.configure("Treeview", font=fuenteF, rowheight=40)
 style.configure("Treeview.Heading", font=fuenteF2, padding=10)
 style.layout("Treeview", [("Treeview.border", None)])
+
+################ELEMENTOS FRAME 4###########
+
+bFactura = Button(canvasBg2, image=bImgFactura, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT)
+bBorrar = Button(canvasBg2, image=bImgBorrar, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT, command=lambda: eliminarFactura(tvFactura))
+bSalir = Button(canvasBg2, image=bImgSalir, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT, command=lambda: salir(ventana1) )
 
 
 
@@ -370,6 +401,8 @@ bBorrar.bind("<Enter>",lambda event: hover(8))
 bBorrar.bind("<Leave>",lambda event: over(8))
 bSalir.bind("<Enter>",lambda event: hover(9))
 bSalir.bind("<Leave>",lambda event: over(9))
+
+
 
 #####COLOCAR ELEMENTOS DE LA VENTANA FACTURACIÓN####
 cbProducto.place(x = 240, y =140)
@@ -406,13 +439,6 @@ imagenBg3= PhotoImage(file="bg3.png")
 canvasBg3 = Canvas(ventana3, width = 1344, height = 756)
 canvasBg3.pack(fill = "both", expand = True)
 canvasBg3.create_image( 9, 0, image = imagenBg3, anchor = "nw")
-
-
-
-
-
-
-
 
 
 ################IMAGENES###########
