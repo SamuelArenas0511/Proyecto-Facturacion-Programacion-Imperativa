@@ -193,7 +193,7 @@ def listaStock():#Muestra una ventana emergente de una lista de los productos y 
 
 
 
-def agregar(): #funcion para agregar elementos a la tabala de previsualizacion de la factura
+def agregar(): #funcion para agregar elementos a la tabla de previsualizacion de la factura
    buscar = cbProducto.get()
    cantidad= eCantidad.get()
 
@@ -217,7 +217,7 @@ def agregar(): #funcion para agregar elementos a la tabala de previsualizacion d
                             tvFactura.insert("", END, text=producto, values=(cantidad,precioUnitario,precioTotal))
        
         else:
-            messagebox.showwarning(message="Escoga una cantidad correcta")
+            messagebox.showwarning(message="Escoja una cantidad correcta")
         
 def eliminarFactura (tvFactura): #Funcion para eliminar los elementos de la previsualizacion de la factura
                      
@@ -233,14 +233,56 @@ def eliminarFactura (tvFactura): #Funcion para eliminar los elementos de la prev
 
     for i in elementos:
         tvFactura.delete(i)
-
-
-
+    lSubtotal.config(text= "")
+    lDescuento.config(text= "")
+    lTotal.config(text= "")
+       
+total= ""    
+def confirmarVenta():#Funcion para confirmar la venta e imprimir subtotal,descuento y subtotal 
+    global total
+    subt = 0
+    
+    for i in tvFactura.get_children():
+      valoresPtotal = int(tvFactura.set(i, "#3"))
+      subt += valoresPtotal
+    if(subt!=0):
+      total = subt
+      lSubtotal.config(text = subt)
+      lTotal.config(text=total)
+      lDescuento.config(text= "0")
+      if (subt>=100000):#si la compra es mayor a 50mil se le descuenta un 20% del subtotal
+       descuento=(subt*0.2)
+       total= subt-descuento
+       lDescuento.config (text = descuento) 
+       lTotal.config(text= total) 
+    else:
+       messagebox.showwarning(message="Agregue minimo 1 produco a la factura")
     
 
-
-    
-
+def calcularVuelto():#funcion que recibe el valor pagado y se le resta el total de la venta para mostrar la devuelta
+  global total
+  pago = eDevuelto.get()
+  if(total==0 or total==""):
+     messagebox.showwarning(message="Confirme la venta")
+  elif( pago==""):
+      messagebox.showwarning(message="Pago vacio")
+  elif(int(pago)<total):
+       messagebox.showwarning(message="Monto insuficiente")
+  
+  else:
+    pago= int(pago)
+    devuelta= pago - int(total) 
+    lDevuelto.config(text=devuelta)
+def generarF():
+   
+   
+   factura= Toplevel(ventana)         
+   factura.geometry("1000x600")
+   factura.title("Facturacion")
+   mostrartabla= Text(factura, width= 600, height=8)
+   mostrartabla.pack()
+   mostrartabla.insert()
+   
 
 
 
@@ -249,7 +291,6 @@ def eliminarFactura (tvFactura): #Funcion para eliminar los elementos de la prev
 
 
 ################CREACION DE LAS VENTANA###########
-    
 ventana1 = Frame(ventana)  #Ventana de Inicio
 ventana2 = Frame(ventana)  #Ventana de Facturación
 ventana3 = Frame(ventana)  #Ventana de Stock
@@ -348,7 +389,7 @@ bAgregar = Button(canvasBg2, image=bImgAgregar, borderwidth =0, highlightthickne
 ################ELEMENTOS FRAME 2###########
 
 eDevuelto = Entry(canvasBg2, background="#373F51", foreground= "white", font=fuenteN, width=20, relief=SUNKEN, justify="center", insertbackground="white")
-bDevuelto = Button(canvasBg2, image=bImgDevuelto, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT)
+bDevuelto = Button(canvasBg2, image=bImgDevuelto, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT,command=calcularVuelto)
 lDevuelto = Label(canvasBg2, text="", font=fuenteN, background="#373F51", foreground="#EDEDED")
 
 ################ELEMENTOS FRAME 3###########
@@ -356,7 +397,7 @@ lDevuelto = Label(canvasBg2, text="", font=fuenteN, background="#373F51", foregr
 lSubtotal = Label(canvasBg2, text="", font=fuenteD, background="#373F51", foreground="#FFD87F")
 lDescuento = Label(canvasBg2, text="", font=fuenteD, background="#373F51", foreground="#FFD87F")
 lTotal = Label(canvasBg2, text="", font=fuenteD, background="#373F51", foreground="#FFD87F")
-bVenta = Button(canvasBg2, image=bImgVenta, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT)
+bVenta = Button(canvasBg2, image=bImgVenta, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT, command = confirmarVenta)
 
 ################ELEMENTOS FRAME 5 TABLA DE LA PREVISUALIZACION DE LA FACTURA###########
 
@@ -379,7 +420,7 @@ style.layout("Treeview", [("Treeview.border", None)])
 
 ################ELEMENTOS FRAME 4###########
 
-bFactura = Button(canvasBg2, image=bImgFactura, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT)
+bFactura = Button(canvasBg2, image=bImgFactura, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT,command= generarF)
 bBorrar = Button(canvasBg2, image=bImgBorrar, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT, command=lambda: eliminarFactura(tvFactura))
 bSalir = Button(canvasBg2, image=bImgSalir, borderwidth =0, highlightthickness=0, bd=0, bg="#373F51",relief=FLAT, command=lambda: salir(ventana1) )
 
@@ -498,3 +539,6 @@ ventana3.place(x=0, y=0,width=1344, height=756)   #STOCK
 salir(ventana1) #Mostrar la ventana de inicio al empezar el programa
 
 ventana.mainloop()
+
+
+
