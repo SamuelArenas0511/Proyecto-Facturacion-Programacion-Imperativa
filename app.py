@@ -236,7 +236,7 @@ def eliminarFactura (tvFactura): #Funcion para eliminar los elementos de la prev
     lSubtotal.config(text= "")
     lDescuento.config(text= "")
     lTotal.config(text= "")
-       
+    lDevuelto.config(text="")   
 total= ""    
 def confirmarVenta():#Funcion para confirmar la venta e imprimir subtotal,descuento y subtotal 
     global total
