@@ -274,16 +274,13 @@ def calcularVuelto():#funcion que recibe el valor pagado y se le resta el total 
     devuelta= pago - int(total) 
     lDevuelto.config(text=devuelta)
 def generarF():
-   
-   
-   factura= Toplevel(ventana)         
-   factura.geometry("1000x600")
-   factura.title("Facturacion")
-   mostrartabla= Text(factura, width= 600, height=8)
-   mostrartabla.pack()
-   mostrartabla.insert()
-   
 
+def borrarfila():
+    eleccion=tvFactura.selection()[0] 
+    tvFactura.delete(eleccion)   
+beliminar= Button(ventana2,text="Eliminar una fila",command= borrarfila)
+
+beliminar.place(x = 1000, y =280)
 
 
 
